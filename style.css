@@ -1,0 +1,12 @@
+.row .cell {
+  display: inline-block;
+  border: 1px solid #ddd;
+  width: 22px;
+  height: 22px;
+  margin: 1px;
+  background-color: #ffffff;
+  -webkit-transition: background-color 0.7s;
+}
+.row .cell.snake {
+  background-color: rgba(80, 160, 80, 0.75);
+}

@@ -1,0 +1,17 @@
+@snake_color: rgba(80, 160, 80, .75);
+
+.row{
+	.cell{
+		display: inline-block;
+		border: 1px solid #ddd;
+		width: 22px;
+		height: 22px;
+		margin: 1px;
+		background-color: rgba(255, 255, 255, 1);
+		-webkit-transition: background-color .7s;
+
+		&.snake{
+			background-color: @snake_color;	
+		}
+	}
+}
