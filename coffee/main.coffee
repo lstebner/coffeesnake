@@ -56,15 +56,24 @@ class SnakeGame
 		right = [39]
 
 		$(document.body).on 'keydown', (e) =>
+			# console.log e.keyCode
 			if _.indexOf(up, e.keyCode) > -1 
 				@move_snake 'up'
-			if _.indexOf(down, e.keyCode) > -1 
+			else if _.indexOf(down, e.keyCode) > -1 
 				@move_snake 'down'
-			if _.indexOf(left, e.keyCode) > -1 
+			else if _.indexOf(left, e.keyCode) > -1 
 				@move_snake 'left'
-			if _.indexOf(right, e.keyCode) > -1 
+			else if _.indexOf(right, e.keyCode) > -1 
 				@move_snake 'right'
+			else if e.keyCode == 32
+				@paused = !@paused
+			else if e.keyCode == 27
+				@reset()
 
+	reset: ->
+		@paused = true
+		@snake = @create_snake()
+		@apple = @create_apple()
 
 	set_snake_velocity: (x, y) ->
 		@snake.x_velocity = x
@@ -87,16 +96,14 @@ class SnakeGame
 
 	update: ->
 		fn = =>
-			return if @paused
-
 			@ticks += 1
 
-			if @ticks % @game_speed == 0
+			if !@paused && @ticks % @game_speed == 0
 				@update_snake()
 				@update_apple()
 				@did_snake_eat_apple()
 
-			@render()
+			@render() if !@paused
 
 			@timeout = setTimeout fn, 1000 / 30
 

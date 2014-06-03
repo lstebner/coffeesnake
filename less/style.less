@@ -2,21 +2,42 @@
 @apple_color: rgba(180, 80, 80, 1);
 
 .row{
+	height: 22px;
+
 	.cell{
 		display: inline-block;
-		border: 1px solid #ddd;
+		border-style: solid;
+		border-color: #ccc;
+		border-width: 1px 1px 1px 0;
 		width: 22px;
 		height: 22px;
-		margin: 1px;
+		margin: 0;
+		padding: 0;
 		background-color: rgba(255, 255, 255, 1);
-		-webkit-transition: background-color .7s;
+		-webkit-transition: opacity;
+
+		&:first-child{
+			border-left-width: 1px;
+		}
+
+		&.apple{
+			background-color: @apple_color;
+		}
 
 		&.snake{
 			background-color: @snake_color;	
 		}
 
-		&.apple{
-			background-color: @apple_color;
+		&.fade-step-1{
+			opacity: .75;
+		}
+
+		&.fade-step-2{
+			opacity: .55;
+		}
+
+		&.fade-step-3{
+			opacity: .3;
 		}
 	}
 }

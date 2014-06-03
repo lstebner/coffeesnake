@@ -73,18 +73,25 @@ SnakeGame = (function() {
     right = [39];
     return $(document.body).on('keydown', function(e) {
       if (_.indexOf(up, e.keyCode) > -1) {
-        _this.move_snake('up');
-      }
-      if (_.indexOf(down, e.keyCode) > -1) {
-        _this.move_snake('down');
-      }
-      if (_.indexOf(left, e.keyCode) > -1) {
-        _this.move_snake('left');
-      }
-      if (_.indexOf(right, e.keyCode) > -1) {
+        return _this.move_snake('up');
+      } else if (_.indexOf(down, e.keyCode) > -1) {
+        return _this.move_snake('down');
+      } else if (_.indexOf(left, e.keyCode) > -1) {
+        return _this.move_snake('left');
+      } else if (_.indexOf(right, e.keyCode) > -1) {
         return _this.move_snake('right');
+      } else if (e.keyCode === 32) {
+        return _this.paused = !_this.paused;
+      } else if (e.keyCode === 27) {
+        return _this.reset();
       }
     });
+  };
+
+  SnakeGame.prototype.reset = function() {
+    this.paused = true;
+    this.snake = this.create_snake();
+    return this.apple = this.create_apple();
   };
 
   SnakeGame.prototype.set_snake_velocity = function(x, y) {
@@ -116,16 +123,15 @@ SnakeGame = (function() {
     var fn,
       _this = this;
     fn = function() {
-      if (_this.paused) {
-        return;
-      }
       _this.ticks += 1;
-      if (_this.ticks % _this.game_speed === 0) {
+      if (!_this.paused && _this.ticks % _this.game_speed === 0) {
         _this.update_snake();
         _this.update_apple();
         _this.did_snake_eat_apple();
       }
-      _this.render();
+      if (!_this.paused) {
+        _this.render();
+      }
       return _this.timeout = setTimeout(fn, 1000 / 30);
     };
     return fn();
