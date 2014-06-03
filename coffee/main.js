@@ -43,7 +43,8 @@ SnakeGame = (function() {
       length: 2,
       speed: 1,
       max_speed: 6,
-      moved: true
+      moved: true,
+      positions: []
     };
   };
 
@@ -134,6 +135,7 @@ SnakeGame = (function() {
     var start_x, start_y;
     start_x = this.snake.x;
     start_y = this.snake.y;
+    this.snake.positions.push([start_x, start_y]);
     this.snake.x = Math.max(0, Math.min(this.opts.cols - 1, this.snake.x + this.snake.x_velocity));
     this.snake.y = Math.max(0, Math.min(this.opts.rows - 1, this.snake.y + this.snake.y_velocity));
     return this.snake.moved = this.snake.x !== start_x || this.snake.y !== start_y;
@@ -182,10 +184,20 @@ SnakeGame = (function() {
   };
 
   SnakeGame.prototype.render_snake = function() {
+    var i, x, y, _i, _ref, _results;
     if (this.snake.moved) {
       this.snake.moved = false;
       this.container.find('.cell.snake').removeClass('snake');
-      return this.container.find(this.cell_selector(this.snake.x, this.snake.y)).addClass('snake');
+      this.container.find(this.cell_selector(this.snake.x, this.snake.y)).addClass('snake');
+      _results = [];
+      for (i = _i = 1, _ref = this.snake.length; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+        if (this.snake.positions.length) {
+          x = this.snake.positions[this.snake.positions.length - i][0];
+          y = this.snake.positions[this.snake.positions.length - i][1];
+        }
+        _results.push(this.container.find(this.cell_selector(x, y)).addClass('snake'));
+      }
+      return _results;
     }
   };
 

@@ -32,6 +32,7 @@ class SnakeGame
 			speed: 1
 			max_speed: 6
 			moved: true
+			positions: []
 		}
 
 	create_apple: ->
@@ -104,6 +105,7 @@ class SnakeGame
 	update_snake: ->
 		start_x = @snake.x
 		start_y = @snake.y
+		@snake.positions.push [start_x, start_y]
 		@snake.x = Math.max 0, Math.min @opts.cols - 1, @snake.x + @snake.x_velocity
 		@snake.y = Math.max 0, Math.min @opts.rows - 1, @snake.y + @snake.y_velocity
 		@snake.moved = @snake.x != start_x || @snake.y != start_y
@@ -145,6 +147,12 @@ class SnakeGame
 
 			@container.find('.cell.snake').removeClass('snake')
 			@container.find(@cell_selector(@snake.x, @snake.y)).addClass('snake')	
+
+			for i in [1..@snake.length]
+				if @snake.positions.length
+					x = @snake.positions[@snake.positions.length - i][0]
+					y = @snake.positions[@snake.positions.length - i][1]
+				@container.find(@cell_selector(x, y)).addClass('snake')
 
 	render_apple: ->
 		if @apple.moved
