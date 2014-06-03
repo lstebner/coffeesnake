@@ -9,6 +9,7 @@ SnakeGame = (function() {
     this.container = $(container);
     this.set_opts(opts);
     this.snake = this.create_snake();
+    this.apple = this.create_apple();
     this.rendered = false;
     this.ticks = 0;
     this.game_speeds = [5, 3];
@@ -41,8 +42,25 @@ SnakeGame = (function() {
       y_velocity: 0,
       length: 2,
       speed: 1,
-      max_speed: 6
+      max_speed: 6,
+      moved: true
     };
+  };
+
+  SnakeGame.prototype.create_apple = function() {
+    var x, y;
+    x = Math.floor(Math.random() * this.opts.cols);
+    y = Math.floor(Math.random() * this.opts.rows);
+    return {
+      x: x,
+      y: y,
+      moved: true,
+      eaten: false
+    };
+  };
+
+  SnakeGame.prototype.move_apple = function() {
+    return this.apple = this.create_apple();
   };
 
   SnakeGame.prototype.setup_events = function() {
@@ -75,7 +93,6 @@ SnakeGame = (function() {
 
   SnakeGame.prototype.move_snake = function(dir) {
     var east, north, south, west;
-    console.log('move snake', dir);
     north = ['n', 'north', 'up', 'u'];
     east = ['e', 'east', 'right', 'r'];
     west = ['w', 'west', 'left', 'l'];
@@ -103,13 +120,43 @@ SnakeGame = (function() {
       }
       _this.ticks += 1;
       if (_this.ticks % _this.game_speed === 0) {
-        _this.snake.x = Math.max(0, Math.min(_this.opts.cols - 1, _this.snake.x + _this.snake.x_velocity));
-        _this.snake.y = Math.max(0, Math.min(_this.opts.rows - 1, _this.snake.y + _this.snake.y_velocity));
+        _this.update_snake();
+        _this.update_apple();
+        _this.did_snake_eat_apple();
       }
       _this.render();
       return _this.timeout = setTimeout(fn, 1000 / 30);
     };
     return fn();
+  };
+
+  SnakeGame.prototype.update_snake = function() {
+    var start_x, start_y;
+    start_x = this.snake.x;
+    start_y = this.snake.y;
+    this.snake.x = Math.max(0, Math.min(this.opts.cols - 1, this.snake.x + this.snake.x_velocity));
+    this.snake.y = Math.max(0, Math.min(this.opts.rows - 1, this.snake.y + this.snake.y_velocity));
+    return this.snake.moved = this.snake.x !== start_x || this.snake.y !== start_y;
+  };
+
+  SnakeGame.prototype.update_apple = function() {
+    if (this.apple.eaten) {
+      this.move_apple();
+      return this.grow_snake();
+    }
+  };
+
+  SnakeGame.prototype.did_snake_eat_apple = function() {
+    if (this.snake.x === this.apple.x && this.snake.y === this.apple.y) {
+      return this.apple.eaten = true;
+    }
+  };
+
+  SnakeGame.prototype.grow_snake = function(amount) {
+    if (amount == null) {
+      amount = 1;
+    }
+    return this.snake.length += amount;
   };
 
   SnakeGame.prototype.render = function() {
@@ -126,12 +173,28 @@ SnakeGame = (function() {
         this.container.append($row);
       }
     }
-    return this.render_snake();
+    this.render_snake();
+    return this.render_apple();
+  };
+
+  SnakeGame.prototype.cell_selector = function(x, y) {
+    return ".row[data-y=" + y + "] .cell[data-x=" + x + "]";
   };
 
   SnakeGame.prototype.render_snake = function() {
-    this.container.find('.cell.snake').removeClass('snake');
-    return this.container.find(".row[data-y=" + this.snake.y + "] .cell[data-x=" + this.snake.x + "]").addClass('snake');
+    if (this.snake.moved) {
+      this.snake.moved = false;
+      this.container.find('.cell.snake').removeClass('snake');
+      return this.container.find(this.cell_selector(this.snake.x, this.snake.y)).addClass('snake');
+    }
+  };
+
+  SnakeGame.prototype.render_apple = function() {
+    if (this.apple.moved) {
+      this.apple.moved = false;
+      this.container.find('.cell.apple').removeClass('apple');
+      return this.container.find(this.cell_selector(this.apple.x, this.apple.y)).addClass('apple');
+    }
   };
 
   return SnakeGame;

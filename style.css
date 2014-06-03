@@ -10,3 +10,6 @@
 .row .cell.snake {
   background-color: rgba(80, 160, 80, 0.75);
 }
+.row .cell.apple {
+  background-color: #b45050;
+}
