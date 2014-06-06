@@ -8,11 +8,11 @@ SnakeGame = (function() {
     }
     this.container = $(container);
     this.set_opts(opts);
+    this.setup_grid();
     this.snake = this.create_snake();
     this.apple = this.create_apple();
-    this.rendered = false;
     this.ticks = 0;
-    this.game_speeds = [5, 3];
+    this.game_speeds = [4, 3];
     this.set_game_speed(this.opts.game_speed);
     this.paused = false;
     this.setup_events();
@@ -24,10 +24,30 @@ SnakeGame = (function() {
       opts = {};
     }
     return this.opts = _.extend(opts, {
-      cols: 40,
-      rows: 20,
+      cols: 'auto',
+      rows: 'auto',
+      cell_size: 20,
       game_speed: 0
     });
+  };
+
+  SnakeGame.prototype.setup_grid = function() {
+    var $grid, $row, x, y, _i, _j, _ref, _ref1;
+    if (this.opts.cols === 'auto') {
+      this.opts.cols = Math.floor(this.container.width() / this.opts.cell_size);
+    }
+    if (this.opts.rows === 'auto') {
+      this.opts.rows = Math.floor(this.container.height() / this.opts.cell_size);
+    }
+    for (y = _i = 0, _ref = this.opts.rows; 0 <= _ref ? _i < _ref : _i > _ref; y = 0 <= _ref ? ++_i : --_i) {
+      $row = $("<div/>").addClass("row").attr("data-y", y);
+      for (x = _j = 0, _ref1 = this.opts.cols; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; x = 0 <= _ref1 ? ++_j : --_j) {
+        $grid = $("<div/>").addClass("cell").attr("data-x", x);
+        $row.append($grid);
+      }
+      this.container.append($row);
+    }
+    return console.log(this.opts);
   };
 
   SnakeGame.prototype.set_game_speed = function(speed_idx) {
@@ -36,8 +56,8 @@ SnakeGame = (function() {
 
   SnakeGame.prototype.create_snake = function() {
     return {
-      x: this.opts.cols / 2,
-      y: this.opts.rows / 2,
+      x: Math.floor(this.opts.cols / 2),
+      y: Math.floor(this.opts.rows / 2),
       x_velocity: 0,
       y_velocity: 0,
       length: 2,
@@ -49,14 +69,16 @@ SnakeGame = (function() {
   };
 
   SnakeGame.prototype.create_apple = function() {
-    var x, y;
+    var sizes, x, y;
     x = Math.floor(Math.random() * this.opts.cols);
     y = Math.floor(Math.random() * this.opts.rows);
+    sizes = [1, 1, 1, 2, 3];
     return {
       x: x,
       y: y,
       moved: true,
-      eaten: false
+      eaten: false,
+      size: sizes[Math.floor(Math.random() * sizes.length)]
     };
   };
 
@@ -149,8 +171,8 @@ SnakeGame = (function() {
 
   SnakeGame.prototype.update_apple = function() {
     if (this.apple.eaten) {
-      this.move_apple();
-      return this.grow_snake();
+      this.grow_snake(this.apple.size);
+      return this.move_apple();
     }
   };
 
@@ -168,19 +190,6 @@ SnakeGame = (function() {
   };
 
   SnakeGame.prototype.render = function() {
-    var $grid, $row, grid, x, y, _i, _j, _ref, _ref1;
-    if (!this.rendered) {
-      this.rendered = true;
-      grid = [];
-      for (y = _i = 0, _ref = this.opts.rows; 0 <= _ref ? _i < _ref : _i > _ref; y = 0 <= _ref ? ++_i : --_i) {
-        $row = $("<div/>").addClass("row").attr("data-y", y);
-        for (x = _j = 0, _ref1 = this.opts.cols; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; x = 0 <= _ref1 ? ++_j : --_j) {
-          $grid = $("<div/>").addClass("cell").attr("data-x", x);
-          $row.append($grid);
-        }
-        this.container.append($row);
-      }
-    }
     this.render_snake();
     return this.render_apple();
   };
@@ -197,7 +206,7 @@ SnakeGame = (function() {
       this.container.find(this.cell_selector(this.snake.x, this.snake.y)).addClass('snake');
       _results = [];
       for (i = _i = 1, _ref = this.snake.length; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-        if (this.snake.positions.length) {
+        if (this.snake.positions.length > i) {
           x = this.snake.positions[this.snake.positions.length - i][0];
           y = this.snake.positions[this.snake.positions.length - i][1];
         }

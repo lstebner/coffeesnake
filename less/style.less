@@ -1,20 +1,33 @@
 @snake_color: rgba(80, 160, 80, .75);
 @apple_color: rgba(180, 80, 80, 1);
+@cell_size: 20px;
+@rows: 14;
+@cols: 20;
+
+#snake{
+	position: absolute;
+	width: @cols * @cell_size;
+	height: @rows * @cell_size;
+	margin: 40px 0 40px -200px;
+	left: 50%;
+	border: 1px solid #333;
+}
 
 .row{
-	height: 22px;
+	height: @cell_size;
 
 	.cell{
 		display: inline-block;
 		border-style: solid;
-		border-color: #ccc;
-		border-width: 1px 1px 1px 0;
-		width: 22px;
-		height: 22px;
+		border-color: #dadaff;
+		// border-width: 1px 1px 1px 0;
+		border: none;
+		width: @cell_size;
+		height: @cell_size;
 		margin: 0;
 		padding: 0;
 		background-color: rgba(255, 255, 255, 1);
-		-webkit-transition: opacity;
+		-webkit-transition: border-radius 1s;
 
 		&:first-child{
 			border-left-width: 1px;
@@ -22,6 +35,7 @@
 
 		&.apple{
 			background-color: @apple_color;
+			border-radius: 9px;
 		}
 
 		&.snake{
@@ -41,3 +55,4 @@
 		}
 	}
 }
+

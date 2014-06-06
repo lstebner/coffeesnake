@@ -2,11 +2,11 @@ class SnakeGame
 	constructor: (container, opts={}) ->
 		@container = $ container
 		@set_opts opts
+		@setup_grid()
 		@snake = @create_snake()
 		@apple = @create_apple()
-		@rendered = false
 		@ticks = 0
-		@game_speeds = [5, 3]
+		@game_speeds = [4, 3]
 		@set_game_speed @opts.game_speed
 		@paused = false
 
@@ -15,17 +15,36 @@ class SnakeGame
 		
 	set_opts: (opts={}) ->
 		@opts = _.extend opts,
-			cols: 40
-			rows: 20
+			cols: 'auto'
+			rows: 'auto'
+			cell_size: 20
 			game_speed: 0
+
+	setup_grid: ->
+		if @opts.cols == 'auto'
+			@opts.cols = Math.floor @container.width() / @opts.cell_size
+
+		if @opts.rows == 'auto'
+			@opts.rows = Math.floor @container.height() / @opts.cell_size
+
+		for y in [0...@opts.rows]	
+			$row = $("<div/>").addClass("row").attr("data-y", y)
+
+			for x in [0...@opts.cols]
+				$grid = $("<div/>").addClass("cell").attr("data-x", x)	
+				$row.append($grid)
+
+			@container.append($row)
+
+		console.log @opts
 
 	set_game_speed: (speed_idx) ->
 		@game_speed = @game_speeds[speed_idx]
 
 	create_snake: ->
 		{
-			x: @opts.cols / 2
-			y: @opts.rows / 2
+			x: Math.floor @opts.cols / 2
+			y: Math.floor @opts.rows / 2
 			x_velocity: 0 
 			y_velocity: 0
 			length: 2 
@@ -38,12 +57,14 @@ class SnakeGame
 	create_apple: ->
 		x = Math.floor Math.random() * @opts.cols
 		y = Math.floor Math.random() * @opts.rows
+		sizes = [1, 1, 1, 2, 3]
 
 		{
 			x: x
 			y: y
 			moved: true
 			eaten: false
+			size: sizes[Math.floor(Math.random() * sizes.length)]
 		}
 
 	move_apple: ->
@@ -119,8 +140,8 @@ class SnakeGame
 
 	update_apple: ->
 		if @apple.eaten
+			@grow_snake(@apple.size)
 			@move_apple()
-			@grow_snake()
 
 	did_snake_eat_apple: ->
 		if @snake.x == @apple.x && @snake.y == @apple.y
@@ -130,18 +151,6 @@ class SnakeGame
 		@snake.length += amount
 
 	render: ->
-		if !@rendered
-			@rendered = true
-			grid = []
-			for y in [0...@opts.rows]	
-				$row = $("<div/>").addClass("row").attr("data-y", y)
-
-				for x in [0...@opts.cols]
-					$grid = $("<div/>").addClass("cell").attr("data-x", x)	
-					$row.append($grid)
-
-				@container.append($row)
-
 		@render_snake()
 		@render_apple()
 
@@ -156,7 +165,7 @@ class SnakeGame
 			@container.find(@cell_selector(@snake.x, @snake.y)).addClass('snake')	
 
 			for i in [1..@snake.length]
-				if @snake.positions.length
+				if @snake.positions.length > i
 					x = @snake.positions[@snake.positions.length - i][0]
 					y = @snake.positions[@snake.positions.length - i][1]
 				@container.find(@cell_selector(x, y)).addClass('snake')
